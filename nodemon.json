@@ -1,0 +1,5 @@
+{
+  "verbose": true,
+  "ignore": [ "/views", "/assets", "/public/js", "/public/css", "/node_modules", "/.hg" ],
+  "ext": "coffee json"
+}

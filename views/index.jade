@@ -1,0 +1,16 @@
+extends layout
+
+block extrahead
+  title= appTitle
+  link(rel='stylesheet',href=assetFingerprint('/css/index.css'))
+
+block content
+  h1= appTitle
+
+  form(method='get',action='')
+    select(name='setLng',onchange='this.form.submit()')
+      option(value='')= i18n.t('chooseLanguage')
+      option(value='en') English
+      option(value='fr') Français
+
+  script(src=assetFingerprint('/js/index.js'))
