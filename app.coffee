@@ -19,39 +19,7 @@ RedisStore = require('connect-redis')(express)
 sessionStore = new RedisStore { db: config.redisDbIndex, ttl: 3600 * 24 * 14, prefix: "#{config.appId}sess:" }
 
 # Apps
-registeredAppsById =
-  Home:
-    public:
-      id: 'Home'
-      name: "Home"
-      URL: 'http://home.sparklinlabs.com'
-    secret: ''
-  NuclearNode:
-    public:
-      id: 'NuclearNode'
-      name: "NuclearNode"
-      URL: 'http://nuclearnode.dev:3000'
-    secret: '|gt82k5n573i7xs~YP9L}+wpPA-OmH'
-  MasterOfTheGrid:
-    public:
-      id: 'MasterOfTheGrid'
-      name: "Master of the Grid"
-      URL: 'http://masterofthegrid.net'
-    secret: ''
-  BombParty:
-    public:
-      id: 'BombParty'
-      name: "BombParty"
-      URL: 'http://bombparty.sparklinlabs.com'
-    secret: ''
-  DailyFrenzy:
-    public:
-      id: 'DailyFrenzy'
-      name: "The Daily Frenzy Challenge"
-      URL: 'http://frenzy.sparklinlabs.com'
-    secret: ''
-
-defaultAppPublics = [ registeredAppsById.Home.public, registeredAppsById.NuclearNode.public, registeredAppsById.MasterOfTheGrid.public, registeredAppsById.BombParty.public, registeredAppsById.DailyFrenzy.public ]
+defaultAppPublics = ( registeredApp.public for registeredAppId, registeredApp of config.registeredAppsById )
 
 # Authentication
 passport = require 'passport'
@@ -111,7 +79,7 @@ app.get '/', (req, res) -> res.render 'index', appTitle: config.title
 nextGuestId = 0
 
 app.get '/apps/:appId/:channelName', (req, res) ->
-  app = registeredAppsById[req.params.appId]
+  app = config.registeredAppsById[req.params.appId]
   return res.send 400, error: "Unknown app" if ! app?
 
   data =
