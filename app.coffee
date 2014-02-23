@@ -91,7 +91,7 @@ passport.use new GoogleStrategy
       authId: "google:#{profile.id}",
       googleId: profile.id
       displayName: profile.displayName
-      pictureURL: profile.photos[0].value
+      pictureURL: profile._json.picture
 
 # Middlewares
 app.use express.logger('dev') if 'development' == env
@@ -158,7 +158,7 @@ app.get '/auth/facebook/callback', passport.authenticate 'facebook', { successRe
 
 app.get '/auth/google', (req, res, next) ->
   req.session.returnTo = req.query.redirect if req.query.redirect?
-  passport.authenticate('google', scope: [ 'https://www.googleapis.com/auth/plus.login' ] )(req, res, next)
+  passport.authenticate('google', scope: [ 'https://www.googleapis.com/auth/userinfo.profile' ] )(req, res, next)
 app.get '/auth/google/callback', passport.authenticate 'google', { successReturnToOrRedirect: '/', failureRedirect: '/' }
 
 
