@@ -22,7 +22,10 @@
     "signed-request": "~1.0.7",
     "coffee-script": "~1.7.1",
     "stylus": "~0.42.2",
-    "passport-twitchtv": "~0.1.1"
+    "passport-twitchtv": "~0.1.1",
+    "passport-facebook": "~1.0.2",
+    "passport-steam": "git://github.com/elisee/passport-steam.git#765869b566319bf7e5c44a4d3e1d4b6439731383",
+    "passport-google-oauth": "~0.1.5"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
