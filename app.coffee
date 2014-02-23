@@ -158,7 +158,7 @@ app.get '/auth/facebook/callback', passport.authenticate 'facebook', { successRe
 
 app.get '/auth/google', (req, res, next) ->
   req.session.returnTo = req.query.redirect if req.query.redirect?
-  passport.authenticate('google', scope: [ 'https://www.googleapis.com/auth/userinfo.profile' ] )(req, res, next)
+  passport.authenticate('google', scope: [ 'https://www.googleapis.com/auth/plus.login' ] )(req, res, next)
 app.get '/auth/google/callback', passport.authenticate 'google', { successReturnToOrRedirect: '/', failureRedirect: '/' }
 
 
