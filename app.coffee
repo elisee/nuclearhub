@@ -38,20 +38,20 @@ passport.use new SteamStrategy
       displayName: profile.displayName
       pictureURL: profile.photos[0].value
 
-TwitchtvStrategy = require('passport-twitchtv').Strategy
-passport.use new TwitchtvStrategy
-    clientID: config.twitchtv.clientID,
-    clientSecret: config.twitchtv.clientSecret
-    callbackURL: baseURL + '/auth/twitchtv/callback'
+TwitchStrategy = require('passport-twitchtv').Strategy
+passport.use new TwitchStrategy
+    clientID: config.twitch.clientID,
+    clientSecret: config.twitch.clientSecret
+    callbackURL: baseURL + '/auth/twitch/callback'
   , (accessToken, refreshToken, profile, done) ->
     done null, 
-      authId: "twitchtv:#{profile._json._id.toString()}",
-      twitchtvId: profile._json._id.toString()
-      twitchtvHandle: profile.username.toLowerCase()
+      authId: "twitch:#{profile._json._id.toString()}",
+      twitchId: profile._json._id.toString()
+      twitchHandle: profile.username.toLowerCase()
       displayName: profile._json.display_name
       pictureURL: profile._json.logo
-      twitchtvToken: accessToken
-      twitchtvRefreshToken: refreshToken
+      twitchToken: accessToken
+      twitchRefreshToken: refreshToken
 
 TwitterStrategy = require('passport-twitter').Strategy
 passport.use new TwitterStrategy
@@ -141,10 +141,10 @@ app.get '/auth/steam', (req, res, next) ->
   passport.authenticate('steam')(req, res, next)
 app.get '/auth/steam/callback', passport.authenticate 'steam', { successReturnToOrRedirect: '/', failureRedirect: '/' }
 
-app.get '/auth/twitchtv', (req, res, next) ->
+app.get '/auth/twitch', (req, res, next) ->
   req.session.returnTo = req.query.redirect if req.query.redirect?
   passport.authenticate('twitchtv', scope: [ 'user_read' ])(req, res, next)
-app.get '/auth/twitchtv/callback', passport.authenticate 'twitchtv', { successReturnToOrRedirect: '/', failureRedirect: '/' }
+app.get '/auth/twitch/callback', passport.authenticate 'twitchtv', { successReturnToOrRedirect: '/', failureRedirect: '/' }
 
 app.get '/auth/twitter', (req, res, next) ->
   req.session.returnTo = req.query.redirect if req.query.redirect?
