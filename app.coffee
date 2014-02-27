@@ -115,7 +115,7 @@ app.get '/', (req, res) -> res.render 'index', appTitle: config.title
 
 nextGuestId = 0
 
-app.get '/apps/:appId/:channelName', (req, res) ->
+app.get '/apps/:appId/:channelName?', (req, res) ->
   app = config.registeredAppsById[req.params.appId]
   return res.send 400, error: "Unknown app" if ! app?
 
@@ -131,10 +131,14 @@ app.get '/apps/:appId/:channelName', (req, res) ->
     data.displayName = "Guest #{nextGuestId++}"
     data.isGuest = true
 
+  if req.params.channelName?
+    path = "#{app.public.URL}/play/#{req.params.channelName}"
+  else
+    path = app.public.URL
+
   res.render 'app',
     signedData: signedRequest.stringify data, app.secret
-    path: "#{app.public.URL}/play/#{req.params.channelName}"
-
+    path: path
 
 app.get '/auth/steam', (req, res, next) ->
   req.session.returnTo = req.query.redirect if req.query.redirect?
