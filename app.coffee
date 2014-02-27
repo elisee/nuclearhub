@@ -167,6 +167,49 @@ app.get '/logout', (req, res) -> req.logout(); res.redirect req.query.redirect o
 http = require 'http'
 server = http.createServer app
 
+# Online users tracking
+socketio = require 'socket.io'
+io = socketio.listen(server)
+io.set 'log level', 1
+io.set 'transports', [ 'websocket' ]
+
+usersByAppId = {}
+dirtyUsersByAppId = {}
+appUsersDirty = false
+
+io.sockets.on 'connection', (socket) ->
+
+  socket.on 'app', (appId) ->
+    return socket.disconnect() if socket.appId? or ! config.registeredAppsById[appId]?
+
+    socket.appId = appId
+    appUsersDirty = true
+
+    usersByAppId[appId] = 0 if ! usersByAppId[appId]?
+    usersByAppId[appId]++
+    dirtyUsersByAppId[appId] = usersByAppId[appId]
+
+    socket.emit 'appUsers', usersByAppId
+    return
+
+  socket.on 'disconnect', ->
+    return if ! socket.appId?
+
+    appUsersDirty = true
+    usersByAppId[socket.appId]--
+    dirtyUsersByAppId[socket.appId] = usersByAppId[socket.appId]
+    return
+
+broadcastAppUsers = ->
+  return if ! appUsersDirty
+
+  io.sockets.emit 'appUsers', dirtyUsersByAppId
+  dirtyUsersByAppId = {}
+  appUsersDirty = false
+  return
+
+setInterval broadcastAppUsers, config.appUsersBroadcastInterval
+
 # Listen
 server.listen app.get('port'), ->
   console.log "#{config.appId} server listening on port " + app.get('port')
