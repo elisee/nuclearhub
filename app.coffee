@@ -35,6 +35,7 @@ passport.use new SteamStrategy
     done null, 
       authId: "steam:#{profile.id}",
       steamId: profile.id
+      serviceHandles: { steam: null }
       displayName: profile.displayName
       pictureURL: profile.photos[0].value
 
@@ -47,7 +48,7 @@ passport.use new TwitchStrategy
     done null, 
       authId: "twitch:#{profile._json._id.toString()}",
       twitchId: profile._json._id.toString()
-      twitchHandle: profile.username.toLowerCase()
+      serviceHandles: { twitch: profile.username.toLowerCase() }
       displayName: profile._json.display_name
       pictureURL: profile._json.logo
       twitchToken: accessToken
@@ -62,7 +63,7 @@ passport.use new TwitterStrategy
     done null, 
       authId: "twitter:#{profile._json.id_str}"
       twitterId: profile._json.id_str
-      twitterHandle: profile.username
+      serviceHandles: { twitter: profile.username }
       displayName: profile.displayName
       pictureURL: profile.photos[0].value
       twitterToken: token
@@ -78,6 +79,7 @@ passport.use new FacebookStrategy
     done null,
       authId: "facebook:#{profile.id}"
       facebookId: profile.id
+      serviceHandles: { facebook: profile.username }
       displayName: profile.displayName
       pictureURL: profile.photos[0].value
 
@@ -90,6 +92,7 @@ passport.use new GoogleStrategy
     done null, 
       authId: "google:#{profile.id}",
       googleId: profile.id
+      serviceHandles: { google: null }
       displayName: profile.displayName
       pictureURL: profile._json.picture
 
@@ -126,8 +129,10 @@ app.get '/apps/:appId/*', (req, res) ->
     data.authId = req.user.authId # FIXME: This may or may not make sense. Have a NuclearHub ID instead?
     data.displayName = req.user.displayName
     data.pictureURL = req.user.pictureURL
+    data.serviceHandles = req.user.serviceHandles
   else
     data.authId = "guest:#{nextGuestId}"
+    data.serviceHandles = { guest: null }
     data.displayName = "Guest #{nextGuestId++}"
     data.isGuest = true
 
