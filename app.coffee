@@ -127,7 +127,7 @@ app.get '/apps/:appId/*', (req, res) ->
     data.displayName = req.user.displayName
     data.pictureURL = req.user.pictureURL
   else
-    data.authId = "guest#{nextGuestId}"
+    data.authId = "guest:#{nextGuestId}"
     data.displayName = "Guest #{nextGuestId++}"
     data.isGuest = true
 
