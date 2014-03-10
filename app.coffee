@@ -1,6 +1,14 @@
 path = require 'path'
 config = require './config'
 signedRequest = require 'signed-request'
+https = require 'https'
+http = require 'http'
+fs = require 'fs'
+path = require 'path'
+gm = require 'gm'
+
+try fs.mkdirSync path.join __dirname, 'public', 'images'
+try fs.mkdirSync path.join __dirname, 'public', 'images', 'users'
 
 # Application
 express = require 'express'
@@ -24,7 +32,25 @@ defaultAppPublics = ( registeredApp.public for registeredAppId, registeredApp of
 # Authentication
 passport = require 'passport'
 passport.serializeUser (user, done) -> done null, user
-passport.deserializeUser (obj, done) -> done null, obj
+passport.deserializeUser (obj, done) ->
+  if obj.pictureURL? and obj.pictureURL.substring(0, baseURL.length ) != baseURL
+    saveUserPicture obj.authId, obj.pictureURL, (pictureURL) ->
+      obj.pictureURL = obj.pictureURL
+      done null, obj
+  else
+    done null, obj
+
+saveUserPicture = (authId, sourcePictureURL, callback) ->
+  return callback null if ! sourcePictureURL?
+
+  # Can't use colons in a path on Windows so let's replace it with an underscore
+  authId = authId.replace ':', '_'
+
+  transport = if sourcePictureURL.substring(0, 5) == 'http:' then http else https
+  request = transport.get sourcePictureURL, (response) ->
+    gm(response).resize(64,64,'>').write path.join(__dirname, 'public', 'images', 'users', "#{authId}.png"), (err) ->
+      return callback null if err?
+      callback "#{baseURL}/images/users/#{authId}.png"
 
 SteamStrategy = require('passport-steam').Strategy
 passport.use new SteamStrategy
@@ -32,12 +58,15 @@ passport.use new SteamStrategy
     realm: baseURL
     apiKey: config.steam.apiKey
   , (identifier, profile, done) ->
-    done null, 
-      authId: "steam:#{profile.id}",
-      steamId: profile.id
-      serviceHandles: { steam: null }
-      displayName: profile.displayName
-      pictureURL: profile.photos[0].value
+    authId = "steam:#{profile.id}"
+
+    saveUserPicture authId, profile.photos[0].value, (pictureURL) ->
+      done null, 
+        authId: authId,
+        steamId: profile.id
+        serviceHandles: { steam: null }
+        displayName: profile.displayName
+        pictureURL: pictureURL
 
 TwitchStrategy = require('passport-twitchtv').Strategy
 passport.use new TwitchStrategy
@@ -45,14 +74,17 @@ passport.use new TwitchStrategy
     clientSecret: config.twitch.clientSecret
     callbackURL: baseURL + '/auth/twitch/callback'
   , (accessToken, refreshToken, profile, done) ->
-    done null, 
-      authId: "twitch:#{profile._json._id.toString()}",
-      twitchId: profile._json._id.toString()
-      serviceHandles: { twitch: profile.username.toLowerCase() }
-      displayName: profile._json.display_name
-      pictureURL: profile._json.logo
-      twitchToken: accessToken
-      twitchRefreshToken: refreshToken
+    authId = "twitch:#{profile._json._id.toString()}"
+
+    saveUserPicture authId, profile._json.logo, (pictureURL) ->
+      done null, 
+        authId: authId,
+        twitchId: profile._json._id.toString()
+        serviceHandles: { twitch: profile.username.toLowerCase() }
+        displayName: profile._json.display_name
+        pictureURL: pictureURL
+        twitchToken: accessToken
+        twitchRefreshToken: refreshToken
 
 TwitterStrategy = require('passport-twitter').Strategy
 passport.use new TwitterStrategy
@@ -60,14 +92,17 @@ passport.use new TwitterStrategy
     consumerSecret: config.twitter.consumerSecret
     callbackURL: baseURL + '/auth/twitter/callback'
   , (token, tokenSecret, profile, done) ->
-    done null, 
-      authId: "twitter:#{profile._json.id_str}"
-      twitterId: profile._json.id_str
-      serviceHandles: { twitter: profile.username }
-      displayName: profile.displayName
-      pictureURL: profile.photos[0].value
-      twitterToken: token
-      twitterTokenSecret: tokenSecret
+    authId = "twitter:#{profile._json.id_str}"
+
+    saveUserPicture authId, profile.photos[0].value, (pictureURL) ->
+      done null, 
+        authId: authId
+        twitterId: profile._json.id_str
+        serviceHandles: { twitter: profile.username }
+        displayName: profile.displayName
+        pictureURL: pictureURL
+        twitterToken: token
+        twitterTokenSecret: tokenSecret
 
 FacebookStrategy = require('passport-facebook').Strategy
 passport.use new FacebookStrategy
@@ -76,12 +111,15 @@ passport.use new FacebookStrategy
     callbackURL: baseURL + '/auth/facebook/callback'
     profileFields: ['id', 'displayName', 'photos']
   , (accessToken, refreshToken, profile, done) ->
-    done null,
-      authId: "facebook:#{profile.id}"
-      facebookId: profile.id
-      serviceHandles: { facebook: profile.username }
-      displayName: profile.displayName
-      pictureURL: profile.photos[0].value
+    authId = "facebook:#{profile.id}"
+
+    saveUserPicture authId, profile.photos[0].value, (pictureURL) ->
+      done null,
+        authId: authId
+        facebookId: profile.id
+        serviceHandles: { facebook: profile.username }
+        displayName: profile.displayName
+        pictureURL: pictureURL
 
 GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 passport.use new GoogleStrategy
@@ -89,15 +127,23 @@ passport.use new GoogleStrategy
     clientSecret: config.google.clientSecret
     callbackURL: baseURL + '/auth/google/callback'
   , (accessToken, refreshToken, profile, done) ->
-    done null, 
-      authId: "google:#{profile.id}",
-      googleId: profile.id
-      serviceHandles: { google: null }
-      displayName: profile.displayName
-      pictureURL: profile._json.picture
+    authId = "google:#{profile.id}"
+
+    saveUserPicture authId, profile._json.picture, (pictureURL) ->
+      done null, 
+        authId: authId,
+        googleId: profile.id
+        serviceHandles: { google: null }
+        displayName: profile.displayName
+        pictureURL: pictureURL
 
 # Middlewares
 app.use express.logger('dev') if 'development' == env
+
+app.use (req, res, next) ->
+  if req.path.substring(0, '/images/users/'.length) == '/images/users/'
+    res.header 'Access-Control-Allow-Origin', '*'
+  next()
 
 app.use require('static-asset') __dirname + '/public/'
 app.use express.static __dirname + '/public/'
