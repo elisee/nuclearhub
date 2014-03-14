@@ -33,6 +33,10 @@ defaultAppPublics = ( registeredApp.public for registeredAppId, registeredApp of
 passport = require 'passport'
 passport.serializeUser (user, done) -> done null, user
 passport.deserializeUser (obj, done) ->
+  # serviceHandles was added for authenticated channels
+  obj.serviceHandles = {} if ! obj.serviceHandles?
+
+  # User pictures are now proxied by NuclearHub while they previously weren't
   if obj.pictureURL? and obj.pictureURL.substring(0, baseURL.length ) != baseURL
     saveUserPicture obj.authId, obj.pictureURL, (pictureURL) ->
       obj.pictureURL = obj.pictureURL
