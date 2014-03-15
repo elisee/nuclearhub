@@ -5,6 +5,7 @@ bower_components/*
 public/css/**.css
 public/js/**.js
 public/locales/**.json
+public/images/users/*.png
 assets/templates/templates.js
 *.sublime-workspace
 *.sublime-project
