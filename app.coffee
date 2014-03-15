@@ -179,7 +179,7 @@ app.get '/apps/:appId/*', (req, res) ->
     data.authId = req.user.authId # FIXME: This may or may not make sense. Have a NuclearHub ID instead?
     data.displayName = req.user.displayName
     data.pictureURL = req.user.pictureURL
-    data.serviceHandles = req.user.serviceHandles
+    data.serviceHandles = req.user.serviceHandles or {}
   else
     data.authId = "guest:#{nextGuestId}"
     data.serviceHandles = { guest: null }
