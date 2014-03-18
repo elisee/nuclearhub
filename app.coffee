@@ -166,6 +166,8 @@ app.use express.errorHandler() if 'development' == env
 # Routes
 app.get '/', (req, res) -> res.render 'index', appTitle: config.title
 
+app.get '/terms', (req, res) -> res.render 'terms'
+
 nextGuestId = 0
 
 app.get '/apps/:appId/*', (req, res) ->
