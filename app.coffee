@@ -192,6 +192,8 @@ app.get '/apps/:appId/*', (req, res) ->
     signedData: signedRequest.stringify data, app.secret
     path: "#{app.public.URL}/#{req.params[0]}"
 
+app.get '/apps/:appId', (req, res) -> res.redirect "/apps/#{req.params.appId}/"
+
 app.get '/auth/steam', (req, res, next) ->
   req.session.returnTo = req.query.redirect if req.query.redirect?
   passport.authenticate('steam')(req, res, next)
