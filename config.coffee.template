@@ -1,0 +1,38 @@
+module.exports =
+  appId: 
+  title: 
+  domain: 
+  internalPort: 
+  publicPort: 
+  redisDbIndex: 
+  sessionSecret: 
+
+  appUsersBroadcastInterval: 10000
+
+  steam:
+    apiKey: 
+  
+  twitch:
+    clientID: 
+    clientSecret: 
+
+  twitter:
+    consumerKey: 
+    consumerSecret: 
+
+  facebook:
+    clientID: 
+    clientSecret: 
+
+  google:
+    clientID: 
+    clientSecret: 
+
+  registeredAppsById:
+    NuclearNode:
+      public:
+        id: 
+        name: 
+        description: 
+        URL: 
+      secret: 
