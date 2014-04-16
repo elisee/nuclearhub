@@ -182,6 +182,7 @@ app.get '/apps/:appId/*', (req, res) ->
     data.displayName = req.user.displayName
     data.pictureURL = req.user.pictureURL
     data.serviceHandles = req.user.serviceHandles or {}
+    data.isHubAdministrator = config.hubAdministratorAuthIds.indexOf(req.user.authId) != -1
   else
     data.authId = "guest:#{nextGuestId}"
     data.serviceHandles = { guest: null }

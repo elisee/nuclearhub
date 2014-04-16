@@ -6,6 +6,7 @@ module.exports =
   publicPort: 
   redisDbIndex: 
   sessionSecret: 
+  hubAdministratorAuthIds: []
 
   appUsersBroadcastInterval: 10000
 
