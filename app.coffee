@@ -229,8 +229,6 @@ server = http.createServer app
 # Online users tracking
 socketio = require 'socket.io'
 io = socketio.listen(server)
-io.set 'log level', 1
-io.set 'transports', [ 'websocket' ]
 
 usersByAppId = {}
 dirtyUsersByAppId = {}
