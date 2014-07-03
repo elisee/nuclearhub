@@ -150,6 +150,7 @@ app.use (req, res, next) ->
   next()
 
 app.use require('static-asset') __dirname + '/public/'
+app.use '/images/users', express.static( __dirname + '/public/images/users', maxAge: 86400000 )
 app.use express.static __dirname + '/public/'
 
 app.use express.json()
