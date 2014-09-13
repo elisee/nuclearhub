@@ -48,7 +48,7 @@ saveUserPicture = (authId, sourcePictureURL, callback) ->
   return callback null if ! sourcePictureURL?
 
   # Can't use colons in a path on Windows so let's replace it with an underscore
-  authId = authId.replace ':', '_'
+  authId = authId.replace /:/g, '_'
 
   transport = if sourcePictureURL.substring(0, 5) == 'http:' then http else https
   request = transport.get sourcePictureURL, (response) ->
