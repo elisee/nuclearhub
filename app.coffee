@@ -190,11 +190,17 @@ app.get '/apps/:appId/*', (req, res) ->
     data.displayName = "Guest #{nextGuestId++}"
     data.isGuest = true
 
+  query = ''
+  query = "?redirect=#{encodeURIComponent(req.query.redirect)}" if req.query.redirect?
+
   res.render 'app',
     signedData: signedRequest.stringify data, app.secret
-    path: "#{app.public.URL}/#{req.params[0]}"
+    path: "#{app.public.URL}/#{req.params[0]}#{query}"
 
-app.get '/apps/:appId', (req, res) -> res.redirect "/apps/#{req.params.appId}/"
+app.get '/apps/:appId', (req, res) ->
+  query = ''
+  query = "?redirect=#{encodeURIComponent(req.query.redirect)}" if req.query.redirect?
+  res.redirect "/apps/#{req.params.appId}/#{query}"
 
 app.get '/auth/steam', (req, res, next) ->
   req.session.returnTo = req.query.redirect if req.query.redirect?
