@@ -26,7 +26,7 @@
     "passport-facebook": "~1.0.2",
     "passport-steam": "git://github.com/elisee/passport-steam.git#765869b566319bf7e5c44a4d3e1d4b6439731383",
     "passport-google-oauth": "~0.1.5",
-    "socket.io": "^1.0.6",
+    "socket.io": "^1.1.0",
     "gm": "~1.14.2"
   },
   "devDependencies": {
